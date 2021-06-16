@@ -1,0 +1,65 @@
+All shapes of size 1 and 2 are winners even if they are on their own.
+
+
+All 3 sized shapes lose on their own but win if combined with another size 3 shape.
+Informal Proof:
+It is obvious that they lose on their own.
+
+For the case of 
+*** and *
+        *
+        *
+This is just a basic winning shape in the original Harary xor game.
+
+So, if we prove that shapes that are variations of
+** are winners when combined with any other 3 sized shape our proof is complete 
+*.
+
+For two shapes that are 
+**
+*. variations =>
+
+                                00
+Each of these shapes consist of ** with an additional block in one of the places labeled 0.
+                                00
+It is trivial to reach a position where
+
+00000    00000
+02110 or 01120
+00000    00000
+
+(1s are grids occupied by player 1, 2s are grids occupied by player 2 and 0s are empty grids)
+and its the second players turn. If it was player 1s turn, he would have 2 places that he could 
+occupy and immediately win. Player 2 cannot occupy both of these places, so player 1 is winning.
+
+    **
+For *. variations, we can also see they consist of 0*0 with an additional block in one of the places labeled 0.
+                                                   0*0
+
+For *** coupled with a ** variation we can again reach this position.
+                       *.
+00000    00000
+02110 or 01120
+00000    00000
+
+For * coupled with a ** variation we can reach another similar position.
+    *                *.
+    *
+
+000    000
+020    010
+010 or 010
+010    020
+000    000
+
+Both of there situations are winning for player 1 for the same reasons as discussed above.
+
+
+
+Idea for bigger shapes:
+In the original paper, it is stated that player 2 can win using the "domino method".
+This method can be also useful in this variation as well.
+With a program, all possible domino tilings could be enumarated. Then, it could be determined
+which shapes cannot be put over which tilings without covering up at least one full domino piece.
+Then, if all the shapes in a certain set have one domino tiling in common player 2 has a winning
+strategy.
