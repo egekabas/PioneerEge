@@ -3,6 +3,7 @@
 #include "dominosolution.h"
 #include "becksolution.h"
 #include "pairingsolution.h"
+#include "orderusingbeckdefense.h"
 
 #define all(x) (x).begin(), (x).end()
 #define ff first
@@ -48,6 +49,7 @@ int calc(vector<vector<int>> board, int turn, int depth){
     ++tot;
     if(tot%10 == 0)
         cout << tot << endl;
+    
     int val = becksolution(board, shapes, turn);
     if(val)
         return dpval = val;
@@ -68,19 +70,19 @@ int calc(vector<vector<int>> board, int turn, int depth){
         nxtturn = 1;
     int movecnt = 0;
     int ambigious = 0;
-    for(int i = 0; i < n; ++i)
-        for(int j = 0; j < m; ++j){
-            if(board[i][j]) continue;
-            movecnt = 1;
-            board[i][j] = turn;
-            int res = calc(board, nxtturn, depth+1);
-            if(res == turn)
-                return dpval = turn;
-            else if(res == 3)
-                ambigious = 1;
-            board[i][j] = 0;
-            movecnt = 1;
-        }
+    vector<pii> vec = orderusingbeck(board, shapes);
+    for(auto u : vec){
+        int i = u.ff, j = u.ss;
+        movecnt = 1;
+        board[i][j] = turn;
+        int res = calc(board, nxtturn, depth+1);
+        if(res == turn)
+            return dpval = turn;
+        else if(res == 3)
+            ambigious = 1;
+        board[i][j] = 0;
+        movecnt = 1;
+    }
     if(movecnt == 0) return dpval = 2;
     if(ambigious)
         return dpval = 3;

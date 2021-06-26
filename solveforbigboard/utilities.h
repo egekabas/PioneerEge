@@ -1,12 +1,10 @@
 #include <bits/stdc++.h>
-#include"z3++.h"
 #define all(x) (x).begin(), (x).end()
 #define ff first
 #define ss second
 #define pb push_back
 #define mp make_pair
 using namespace std;
-using namespace z3;
 typedef long long ll;
 typedef unsigned long long ull;
 typedef long double ld;
