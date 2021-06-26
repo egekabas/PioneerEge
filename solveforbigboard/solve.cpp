@@ -48,7 +48,7 @@ int calc(vector<vector<int>> board, int turn, int depth){
     ++tot;
     if(tot%10 == 0)
         cout << tot << endl;
-    int val = becksolution(board, shapes);
+    int val = becksolution(board, shapes, turn);
     if(val)
         return dpval = val;
     
@@ -93,11 +93,6 @@ int main() {
     //freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 
-    /*vector<vector<pii>> tmp = {{{0, 0}, {0, 1}}};
-    vector<vector<int>> brd(4, vector<int>(4));
-    cout << dominosolution (brd, tmp) << '\n';
-    return 0;*/
-
     vector<pii> shapy = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 3}, {1, 4}};
     normalize(shapy);
 
@@ -122,6 +117,7 @@ int main() {
     transform(shapy, syy);
     
     normalize(shapes);
+
 
     cout << calc(vector<vector<int>>(n, vector<int>(m)), 1, 0) << '\n';
     cout<< "Calcuated in " << fixed << setprecision(3) << (ld)clock() / CLOCKS_PER_SEC<< " seconds\n";

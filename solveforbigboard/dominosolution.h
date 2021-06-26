@@ -14,7 +14,7 @@ typedef pair<ll, ll> pll;
 typedef pair<ull, ull> pull;
 typedef pair<int, int> pii;
 typedef pair<ld, ld> pld;
-int tilehere[15][15];
+int tilehere[20][20];
 //works when its breakers turn
 int dominosolution(vector<vector<int>> &board, vector<vector<pii>> &shapes){
     int n = board.size();
