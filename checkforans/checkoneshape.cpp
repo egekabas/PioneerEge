@@ -43,16 +43,6 @@ int main() {
     transform(shapy, rotate);
     transform(shapy, syy);
 
-
-    transform(shapy, syx);
-    all.pb(shapy);
-    transform(shapy, rotate);
-    all.pb(shapy);
-    transform(shapy, rotate);
-    all.pb(shapy);
-    transform(shapy, rotate);
-    all.pb(shapy);
-    transform(shapy, rotate);
     
     normalize(all);
     vector<vector<vector<pii>>> fin;

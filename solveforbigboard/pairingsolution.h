@@ -94,8 +94,8 @@ int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int
                     s.add(atleast(vec, 1));
             }
 
-    if(s.check() == unsat)
-        return 0;
-    return 2;
+    if(s.check() == sat)
+        return 2;
+    return 0;
     
 }

@@ -123,7 +123,7 @@ int main() {
                 s.add(atleast(v, 1));
             }
     }
-    
+
     check_result cres = s.check();
     cout << cres << "\n\n";
     if(cres == unsat)

@@ -46,13 +46,19 @@ void transform(vector<vector<pii>> &cur, pii (*func)(pii)){
     normalize(cur);
 }
 int boardtmp[20][20];
-void transformboard(vector<vector<int>> &board, pii (*func) (pii)){
+void transformboard(vector<vector<int>> &board, char type){
     for(int i = 0; i < board.size(); ++i)
         for(int j = 0; j < board[0].size(); ++j){
-            pii cur = func(pii(i, j));
-            if(cur.ff < 0) cur.ff += (int)board.size()-1;
-            if(cur.ss < 0) cur.ss += (int)board.size()-1;            
-            boardtmp[cur.ff][cur.ss] = board[i][j];
+            int x, y;
+            if(type == 'r'){
+                x = j;
+                y = (board[0].size()-1-i);
+            }
+            else{
+                x = board.size()-1-i;
+                y = j;
+            }
+            boardtmp[x][y] = board[i][j];
         }
     for(int i = 0; i < board.size(); ++i)
         for(int j = 0; j < board[0].size(); ++j)
