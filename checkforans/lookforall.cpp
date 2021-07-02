@@ -40,7 +40,7 @@ void print(vector<pii> &vec, ofstream &file){
 vector<pii> dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 int main() {
 
-    ofstream nosol("nosolution.txt", ofstream::out);
+    //ofstream nosol("nosolution.txt", ofstream::out);
     ofstream sol("shapessolution.txt", ofstream::out);
     
     vector<vector<pii>> vec = {{{0, 0}}};
@@ -55,7 +55,7 @@ int main() {
         vec.resize(unique(all(vec))-vec.begin());
         for(auto u : vec){
             if(u.size() != i) continue;
-            if(u.size() == maxsz)
+            if(u.size() <= maxsz && u.size() > 3)
                 fin.pb(u);
             for(auto el : u)
                 for(auto curdir : dir){
@@ -70,9 +70,26 @@ int main() {
         }
         vec = nw;
     }
-    vector<vector<char>> ans = checkdefence(fin);
-    if(ans.empty())
-        cout << "NoSol\n";
-    else
-        cout << "Sol\n";
+    for(int cnt = 0; cnt < 1; ++cnt){
+        cout << cnt << endl << '\n';
+        int bit = (1<<16);
+        cout << bit << endl;
+        vector<vector<pii>> cur;    
+        for(int i = 0; i < fin.size(); ++i)
+            if(bit&(1<<i))
+                cur.pb(fin[i]);
+        
+        vector<vector<char>> ans = checkdefence(cur);
+        if(ans.size()){
+            for(auto u : cur)
+                print(u, sol);
+            for(auto u : ans){
+                for(auto v : u)
+                    sol << v;
+                sol << '\n';
+            }
+            sol << "\n\n\n------------------------------------\n\n\n" << endl;
+        }
+
+    }
 }
