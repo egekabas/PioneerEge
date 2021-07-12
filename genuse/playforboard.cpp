@@ -3,7 +3,9 @@
 #else
 #include <unistd.h>
 #endif
-
+/*
+Simple brute force algorithm to play the game for boards upto size 4 by 4
+*/
 #include <bits/stdc++.h>
 #define all(x) (x).begin(), (x).end()
 #define ff first

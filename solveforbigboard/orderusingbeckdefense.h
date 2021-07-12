@@ -33,6 +33,7 @@ so evertyhing is the same
 */
 
 int beckval[20][20];
+//sorting by decreasing beckval
 int sortbyprob(pii x, pii y){
     return beckval[x.ff][x.ss] > beckval[y.ff][y.ss];   
 }
@@ -72,6 +73,7 @@ vector<pii> orderusingbeck(vector<vector<int>> &board, vector<vector<pii>> &shap
                     int y = j+u.ss;
                     if(board[x][y] == 0)
                         beckval[x][y] += (1<<(maxsize-sz));
+                    //adding 2^-A to all covered by any placement of a shape
                 }
             }
     

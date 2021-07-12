@@ -19,6 +19,7 @@ int becksolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int tu
     int m = board[0].size();
     
     ld impval = 0;
+    //calculating sum of 2^-A
     for(int i = 0; i < n; ++i)
         for(int j = 0; j < m; ++j)
             for(auto shape : shapes){
@@ -30,6 +31,7 @@ int becksolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int tu
                         ok = 0;
                         break;
                     }
+                    //if blocked, break
                     if(board[x][y] == 2){
                         ok = 0;
                         break;
@@ -38,21 +40,25 @@ int becksolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int tu
                         ++cursize;
                 }
                 if(ok == 0) continue;
+                //if already won, return
                 if(cursize == 0)
                     return 1;
                 impval += pow(2, -cursize);
             }
-    //cout << impval << '\n';
+    //One of Becks Theorems
     if(impval < 0.5)
         return 2;
     if(turn == 1){
         int dtwo = 0;
         int vertices = 0;
+        //calculating v and d2 as in the article
         for(int i = 0; i < n; ++i)
             for(int j = 0; j < m; ++j){
                 if(board[i][j])
                     continue;
                 ++vertices;
+                //for every shape and every node in that shape that can cover
+                //our cell, we increase all the cells covered by that shape
                 for(auto shape : shapes)
                     for(int k = 0; k < shape.size(); ++k){
                         int ok = 1;
@@ -79,6 +85,7 @@ int becksolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int tu
                         commonval[x][y] = 0;
                     }
             }
+        //One of Beck's theorems
         if(impval > dtwo*vertices/ld(8))
             return 1;
     }

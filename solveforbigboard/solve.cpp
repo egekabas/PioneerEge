@@ -22,22 +22,23 @@ map<vector<vector<int>>, int> res;
 map<vector<vector<int>>, int> calcvis;
 vector<vector<pii>> shapes;
 
+//set the board size, starting depth and symmetry here
 const int n = 8, m = 8;
 const int symmetric = 1;
-int maxdepth = 0;
+int maxdepth = 6;
 
-vector<pii> coordinates_sorted;
-int sortbycenter(pii a, pii b){
-    return abs(2*a.ff-(n-1))+abs(2*a.ss-(m-1)) < abs(2*b.ff-(n-1))+abs(2*b.ss-(m-1)); 
-}
 int tot = 0;
 int calc(vector<vector<int>> board, int turn, int depth){
     int &dpval = res[board];
+    
+    //stop if previously visited or deeper than maxdepth
     if(depth >= maxdepth)
         return dpval = 3;
     
     if(dpval) return dpval;
     
+
+    //check all the roations and reflections to see if weve been here before
     if(symmetric){
         for(int i = 0; i < 4; ++i){
             transformboard(board, 'r');
@@ -52,18 +53,18 @@ int calc(vector<vector<int>> board, int turn, int depth){
         }
         transformboard(board, 's');
     }
+
+    //if we didnt apply our checking algorithms, we do it here
     if(calcvis[board] == 0){
         ++tot;
-        if(tot%10 == 0)
-            cout << tot << endl;
+        if(tot%100 == 0)
+            cout << "startbig " << maxdepth << ' ' << tot << endl;
         calcvis[board] = 1;
         int val = becksolution(board, shapes, turn);
         if(val)
             return dpval = val;
         
         if(turn == 2){
-            //++numer;
-            //cout << numer << ' ' << depth << endl;
             val = pairingsolution(board, shapes, 2);
             if(val){
                 return dpval = val;
@@ -76,15 +77,19 @@ int calc(vector<vector<int>> board, int turn, int depth){
         nxtturn = 2;
     else
         nxtturn = 1;
+
     int movecnt = 0;
     int ambiguous = 0;
-    
+
+    //coordinates sorted by beck value
+    vector<pii> coordinates_sorted = orderusingbeck(board, shapes);
     for(auto u : coordinates_sorted){
+        
         int i = u.ff, j = u.ss;
-        if(board[i][j]) continue;
         movecnt = 1;
         board[i][j] = turn;
         int res = calc(board, nxtturn, depth+1);
+        //if the player can force a win, no need to calculate further
         if(res == turn)
             return dpval = turn;
         else if(res == 3)
@@ -93,6 +98,8 @@ int calc(vector<vector<int>> board, int turn, int depth){
         movecnt = 1;
     }
     if(movecnt == 0) return dpval = 2;
+    //if the player cant force a win and if some states are ambigious than the current state is
+    //ambigious as well
     if(ambiguous)
         return dpval = 3;
     return dpval = nxtturn;    
@@ -104,11 +111,7 @@ int main() {
     //freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 
-    for(int i = 0; i < n; ++i)
-        for(int j = 0; j < m; ++j)
-            coordinates_sorted.pb({i, j});
-    std::sort(all(coordinates_sorted), sortbycenter);
-
+    //change this part to create the desired set of shapes
     vector<pii> shapy = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 3}, {1, 4}};
     normalize(shapy);
 
@@ -134,13 +137,19 @@ int main() {
     
     normalize(shapes);
 
+    
+
+
     int val;
     while(1){
+        //we only check states that were previously marked as ambigious or werent reached at all
         for(auto &u : res)
             if(u.ss == 3)
                 u.ss = 0;
+        //increasing the maximum search depth
         maxdepth += 2;
         val = calc(vector<vector<int>>(n, vector<int>(m)), 1, 0);
+        //break only after finding a definite result
         if(val != 3)
             break;
     }

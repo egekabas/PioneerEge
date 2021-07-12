@@ -14,9 +14,9 @@ typedef pair<ll, ll> pll;
 typedef pair<ull, ull> pull;
 typedef pair<int, int> pii;
 typedef pair<ld, ld> pld;
-int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int turn) {
+int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int turn, int printsol = 0) {
 
-    //Getting the input
+    //Initializing boolean variables to hold if two cells are in a pair
     int n = board.size(), m = board[0].size();
     context c;
     vector<vector<vector<vector<expr>>>> edge;
@@ -32,14 +32,15 @@ int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int
         }
     }
     
+    //Initializing boolean variables to hold if player two marks a cell in his current turn
     vector<vector<expr>> taken;
-    ///////////////////turn2
     for(int i = 0; i < n; ++i){
         taken.pb(vector<expr>());
         for(int j = 0; j < m; ++j)
             taken[i].pb(c.bool_const((to_string(i)+"-"+to_string(j)).c_str()));
     }
     
+    //If x and y are in a pair, then y and x must be in a pair
     solver s(c);
     for(int i = 0; i < n; ++i)
         for(int j = 0; j < m; ++j)
@@ -47,7 +48,7 @@ int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int
                 for(int y = 0; y < m; ++y)
                     s.add(edge[i][j][x][y] == edge[x][y][i][j]);
 
-    ////////////////////turn2
+    //Player 2 can mark only one cell in one turn
     expr_vector onetaken(c);
     for(int i = 0; i < n; ++i)
         for(int j = 0; j < m; ++j)
@@ -55,6 +56,7 @@ int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int
     if(onetaken.size())
         s.add(atmost(onetaken, 1));
 
+    //each cell must be in at most one pair
     for(int i = 0; i < n; ++i)
         for(int j = 0; j < m; ++j){
             expr_vector onefriend(c);
@@ -74,6 +76,7 @@ int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int
                 }
                 if(ok == 0) continue;
                 expr_vector vec(c);
+                //every cell must either contain a pair or a cell marked by player 2
                 for(int x = 0; x < shape.size(); ++x){
                     pii u1 = {i+shape[x].ff, j+shape[x].ss};
                     if(board[u1.ff][u1.ss] == 0){
@@ -94,8 +97,56 @@ int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int
                     s.add(atleast(vec, 1));
             }
 
-    if(s.check() == sat)
+    if(s.check() == sat){
+        //printing the solution (for debugging purposes)
+        if(printsol){
+            model ml = s.get_model();
+            vector<vector<char>> res(n, vector<char>(m, '.'));
+
+            int curpair = 0;
+            for(int i = 0; i < ml.size(); ++i){
+                func_decl v = ml[i];
+                assert(v.arity() == 0);
+                if(ml.get_const_interp(v).bool_value() == -1)
+                    continue;
+                
+                string s = v.name().str();
+                vector<int> curvec;
+                int last = 0;
+                for(int i = 0; i < s.size(); ++i)
+                    if(s[i] == '-'){
+                        curvec.pb(stoi(s.substr(last, i-last)));
+                        last = i+1;
+                    }
+                curvec.pb(stoi(s.substr(last, s.size()-last)));
+                if(curvec.size() == 2)
+                    res[curvec[0]][curvec[1]] = '2';
+                else{
+                    if(res[curvec[0]][curvec[1]] != '.')
+                        continue;
+                    if(curpair > 'z'-'a'){
+                        res[curvec[0]][curvec[1]] = 'A'+curpair-('z'-'a'+1);
+                        res[curvec[2]][curvec[3]] = 'A'+curpair-('z'-'a'+1);
+                    }
+                    else{
+                        res[curvec[0]][curvec[1]] = 'a'+curpair;
+                        res[curvec[2]][curvec[3]] = 'a'+curpair;
+                    }
+                    ++curpair;
+                }
+            }
+            for(int i = 0; i < n; ++i){
+                for(int j = 0; j < m; ++j){
+                    if(board[i][j])
+                        res[i][j] = board[i][j]+'0';
+                    cout << res[i][j];
+                }
+                cout << endl;
+            }
+        }
+
         return 2;
+    }
     return 0;
     
 }

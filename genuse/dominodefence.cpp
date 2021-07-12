@@ -4,16 +4,9 @@
 #define ff first
 #define ss second
 #define pb push_back
-#define mp make_pair
 using namespace std;
 using namespace z3;
-typedef long long ll;
-typedef unsigned long long ull;
-typedef long double ld;
-typedef pair<ll, ll> pll;
-typedef pair<ull, ull> pull;
 typedef pair<int, int> pii;
-typedef pair<ld, ld> pld;
 int n, m;
 
 vector<vector<pii>> shapes;
@@ -64,7 +57,7 @@ int main() {
     vector<vector<expr>> down;
     vector<vector<expr>> left;
     vector<vector<expr>> right;
-    //Initializing the boolean constants
+    //Initializing the boolean constants representing the domino tiles directions
     for(int i = 0; i < n; ++i){
         up.pb(vector<expr>());
         down.pb(vector<expr>());
@@ -91,7 +84,6 @@ int main() {
             
             s.add(atmost(v, 1));
         }   
-    //Each domino tile is 2 blocks long
     
     //We shoulnt be able to place any of the shapes without at least covering one full
     //domino tile
@@ -107,11 +99,9 @@ int main() {
                     curvis[x][y] = 1;
                     if(x > 0 && curvis[x-1][y]){
                         v.pb(up[(x+i)%n][(y+j)%m] && down[(x+i-1+n)%n][(y+j)%m]);
-                        //cout << "up " << x << ' ' << y << '\n';
                     }
                     if(y > 0 && curvis[x][y-1]){
                         v.pb(left[(x+i)%n][(y+j)%m] && right[(x+i)%n][(y+j-1+m)%m]);
-                        //cout << "left " << x << ' ' << y << '\n';
                     }
                 }
                 for(auto u : shape){
@@ -119,7 +109,6 @@ int main() {
                     int y = u.ss;
                     curvis[x][y] = 0;
                 }
-                //cout << '\n';
                 s.add(atleast(v, 1));
             }
     }
@@ -168,21 +157,3 @@ int main() {
         cout << '\n';
     }
 }
-/*
-2
-
-5
-0 0
-0 1
-0 2
-0 3
-1 3
-
-5
-0 0
-0 1
-1 1
-2 1
-3 1
-
-*/

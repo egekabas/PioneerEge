@@ -35,12 +35,12 @@ void normalize(vector<vector<pii>> &vec){
     std::sort(all(vec));
     vec.resize(unique(all(vec))-vec.begin());
 }
-const int maxn = 16, maxm = 16;
+const int maxn = 8, maxm = 8;
 vector<vector<char>> checkdefence(vector<vector<pii>> shapes){
     for(auto u : shapes)
         normalize(u);
-    for(int n = 1; n <= maxn; n += 1)
-    for(int m = 1; m <= maxm; m += 1)
+    for(int n = 2; n <= maxn; n += 2)
+    for(int m = 2; m <= maxm; m += 2)
     {
             int maxn = 0;
             int maxm = 0;

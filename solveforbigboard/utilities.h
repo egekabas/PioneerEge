@@ -50,10 +50,12 @@ void transformboard(vector<vector<int>> &board, char type){
     for(int i = 0; i < board.size(); ++i)
         for(int j = 0; j < board[0].size(); ++j){
             int x, y;
+            //rotate
             if(type == 'r'){
                 x = j;
                 y = (board[0].size()-1-i);
             }
+            //reflect
             else{
                 x = board.size()-1-i;
                 y = j;

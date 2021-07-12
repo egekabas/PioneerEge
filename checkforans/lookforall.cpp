@@ -41,8 +41,9 @@ vector<pii> dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 int main() {
 
     //ofstream nosol("nosolution.txt", ofstream::out);
-    ofstream sol("shapessolution.txt", ofstream::out);
-    
+    ofstream sol("coolpatterns.txt", ofstream::out);
+    srand(4);
+
     vector<vector<pii>> vec = {{{0, 0}}};
     int maxsz;
     cin >> maxsz;
@@ -70,26 +71,37 @@ int main() {
         }
         vec = nw;
     }
-    for(int cnt = 0; cnt < 1; ++cnt){
-        cout << cnt << endl << '\n';
-        int bit = (1<<16);
-        cout << bit << endl;
-        vector<vector<pii>> cur;    
+    random_shuffle(all(fin));
+
+    vector<int> cur(fin.size());
+    cur[0] = cur[1] = cur[2] = cur[3] = 1;
+    std::sort(all(cur));
+
+    int cnt = 0;
+    int tot = 0;
+    while(1){
+        ++cnt;
+        cout << cnt << endl;
+
+        vector<vector<pii>> myshape;
         for(int i = 0; i < fin.size(); ++i)
-            if(bit&(1<<i))
-                cur.pb(fin[i]);
+            if(cur[i])
+                myshape.pb(fin[i]);
         
-        vector<vector<char>> ans = checkdefence(cur);
-        if(ans.size()){
-            for(auto u : cur)
+        vector<vector<char>> ans = checkdefence(myshape);
+        if(ans.size() > 6 || (ans.size() && ans[0].size() > 6)){
+            tot++;
+            for(auto u : myshape)
                 print(u, sol);
             for(auto u : ans){
                 for(auto v : u)
                     sol << v;
-                sol << '\n';
+                sol << endl;
             }
-            sol << "\n\n\n------------------------------------\n\n\n" << endl;
+            sol << endl << "----------------------------------\n" << endl;
+            return 0;
         }
-
+        if(next_permutation(all(cur)) == 0)
+            return 0;
     }
 }
