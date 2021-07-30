@@ -14,7 +14,7 @@ typedef pair<ll, ll> pll;
 typedef pair<ull, ull> pull;
 typedef pair<int, int> pii;
 typedef pair<ld, ld> pld;
-int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int turn, int printsol = 0) {
+int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int turn, vector<vector<int>> &solution) {
 
     //Initializing boolean variables to hold if two cells are in a pair
     int n = board.size(), m = board[0].size();
@@ -98,55 +98,103 @@ int pairingsolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int
             }
 
     if(s.check() == sat){
-        //printing the solution (for debugging purposes)
-        if(printsol){
-            model ml = s.get_model();
-            vector<vector<char>> res(n, vector<char>(m, '.'));
+        
+        model ml = s.get_model();
+        vector<vector<int>> res(n, vector<int>(m));
 
-            int curpair = 0;
-            for(int i = 0; i < ml.size(); ++i){
-                func_decl v = ml[i];
-                assert(v.arity() == 0);
-                if(ml.get_const_interp(v).bool_value() == -1)
+        int curpair = 1;
+        for(int i = 0; i < ml.size(); ++i){
+            func_decl v = ml[i];
+            assert(v.arity() == 0);
+            if(ml.get_const_interp(v).bool_value() == -1)
+                continue;
+            
+            string s = v.name().str();
+            vector<int> curvec;
+            int last = 0;
+            for(int i = 0; i < s.size(); ++i)
+                if(s[i] == '-'){
+                    curvec.pb(stoi(s.substr(last, i-last)));
+                    last = i+1;
+                }
+            curvec.pb(stoi(s.substr(last, s.size()-last)));
+            if(curvec.size() == 2)
+                res[curvec[0]][curvec[1]] = -2;
+            else{
+                if(res[curvec[0]][curvec[1]] != 0)
                     continue;
                 
-                string s = v.name().str();
-                vector<int> curvec;
-                int last = 0;
-                for(int i = 0; i < s.size(); ++i)
-                    if(s[i] == '-'){
-                        curvec.pb(stoi(s.substr(last, i-last)));
-                        last = i+1;
-                    }
-                curvec.pb(stoi(s.substr(last, s.size()-last)));
-                if(curvec.size() == 2)
-                    res[curvec[0]][curvec[1]] = '2';
-                else{
-                    if(res[curvec[0]][curvec[1]] != '.')
-                        continue;
-                    if(curpair > 'z'-'a'){
-                        res[curvec[0]][curvec[1]] = 'A'+curpair-('z'-'a'+1);
-                        res[curvec[2]][curvec[3]] = 'A'+curpair-('z'-'a'+1);
-                    }
-                    else{
-                        res[curvec[0]][curvec[1]] = 'a'+curpair;
-                        res[curvec[2]][curvec[3]] = 'a'+curpair;
-                    }
-                    ++curpair;
-                }
+                res[curvec[0]][curvec[1]] = curpair;
+                res[curvec[2]][curvec[3]] = curpair;
+                
+                ++curpair;
             }
-            for(int i = 0; i < n; ++i){
-                for(int j = 0; j < m; ++j){
-                    if(board[i][j])
-                        res[i][j] = board[i][j]+'0';
-                    cout << res[i][j];
-                }
-                cout << endl;
+        }
+        int cnt = 0;
+        for(int i = 0; i < n; ++i){
+            for(int j = 0; j < m; ++j){
+                if(res[i][j] < 0)
+                    ++cnt;
             }
         }
 
-        return 2;
+        solution = res;
+
+       return 2;
     }
-    return 0;
-    
+    return 0;   
+}
+
+int checksol(int turn, vector<vector<int>> &board, vector<vector<int>> &sol, vector<vector<pii>> &shapes){
+    int n = board.size();
+    int m = board[0].size();
+
+    int changed = 0;
+    if(turn == 2){
+        for(int i = 0; i < n; ++i)
+            for(int j = 0; j < m; ++j)
+                if(sol[i][j] == -2 && board[i][j] == 0){
+                    board[i][j] = 2;
+                    changed = 1;
+                }
+    }
+
+    int ret = 2;
+    for(int i = 0; i < n && ret; ++i)
+        for(int j = 0; j < m && ret; ++j)
+            for(auto shape : shapes){
+                int ok = 1;
+                for(auto u : shape){
+                    if(i+u.ff >= n || j+u.ss >= m || board[i+u.ff][j+u.ss] == 2)
+                        ok = 0;
+                }
+                if(ok == 0) continue;
+
+                //every cell must either contain a pair or a cell marked by player 2
+                int blocked = 0;
+                for(int x = 0; x < shape.size(); ++x){
+                    pii u1 = {i+shape[x].ff, j+shape[x].ss};
+                    if(board[u1.ff][u1.ss])
+                        continue;
+                    for(int y = x+1; y < shape.size(); ++y){
+                        pii u2 = {i+shape[y].ff, j+shape[y].ss};
+                        if(board[u2.ff][u2.ss])
+                            continue;
+                        if(sol[u1.ff][u1.ss] && sol[u1.ff][u1.ss] == sol[u2.ff][u2.ss])
+                            blocked = 1;
+                    }
+                }
+                if(blocked == 0){
+                    ret = 0;
+                    break;
+                }
+            }
+
+    if(turn == 2 && changed){
+        for(int i = 0; i < n; ++i)
+            for(int j = 0; j < m; ++j)
+                if(sol[i][j] == -2)
+                    board[i][j] = 0;
+    }
+    return ret;
 }

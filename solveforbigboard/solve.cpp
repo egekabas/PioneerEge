@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 #include "utilities.h"
-#include "dominosolution.h"
 #include "becksolution.h"
 #include "pairingsolution.h"
 #include "orderusingbeckdefense.h"
@@ -21,6 +20,7 @@ typedef pair<ld, ld> pld;
 map<vector<vector<int>>, int> res;
 map<vector<vector<int>>, int> calcvis;
 vector<vector<pii>> shapes;
+vector<vector<vector<int>>> sols;
 
 //set the board size, starting depth and symmetry here
 const int n = 8, m = 8;
@@ -37,7 +37,6 @@ int calc(vector<vector<int>> board, int turn, int depth){
     
     if(dpval) return dpval;
     
-
     //check all the roations and reflections to see if weve been here before
     if(symmetric){
         for(int i = 0; i < 4; ++i){
@@ -55,18 +54,26 @@ int calc(vector<vector<int>> board, int turn, int depth){
     }
 
     //if we didnt apply our checking algorithms, we do it here
+    static int newsol = 0, oldsol = 0;
     if(calcvis[board] == 0){
         ++tot;
         if(tot%100 == 0)
-            cout << "startbig " << maxdepth << ' ' << tot << endl;
+            cout << maxdepth << ' ' << tot << ' ' << newsol << ' ' << oldsol << endl;
         calcvis[board] = 1;
         int val = becksolution(board, shapes, turn);
         if(val)
             return dpval = val;
-        
+        for(auto &u : sols)
+            if(checksol(turn, board, u, shapes)){
+                ++oldsol;
+                return dpval = 2;
+            }
         if(turn == 2){
-            val = pairingsolution(board, shapes, 2);
+            vector<vector<int>> cursol;
+            val = pairingsolution(board, shapes, 2, cursol);
             if(val){
+                ++newsol;
+                sols.pb(cursol);
                 return dpval = val;
             }
         }
@@ -115,26 +122,15 @@ int main() {
     vector<pii> shapy = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 3}, {1, 4}};
     normalize(shapy);
 
-    shapes.pb(shapy);
-    transform(shapy, rotate);
-    shapes.pb(shapy);
-    transform(shapy, rotate);
-    shapes.pb(shapy);
-    transform(shapy, rotate);
-    shapes.pb(shapy);
-    transform(shapy, rotate);
-    
+    for(int i = 0; i < 4; ++i){
+        shapes.pb(shapy);
+        transform(shapy, rotate);
+    }
     transform(shapy, syy);
-    shapes.pb(shapy);
-    transform(shapy, rotate);
-    shapes.pb(shapy);
-    transform(shapy, rotate);
-    shapes.pb(shapy);
-    transform(shapy, rotate);
-    shapes.pb(shapy);
-    transform(shapy, rotate);
-    transform(shapy, syy);
-    
+    for(int i = 0; i < 4; ++i){
+        shapes.pb(shapy);
+        transform(shapy, rotate);
+    }
     normalize(shapes);
 
     

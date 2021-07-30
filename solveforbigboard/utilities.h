@@ -45,8 +45,8 @@ void transform(vector<vector<pii>> &cur, pii (*func)(pii)){
         transform(u, func);
     normalize(cur);
 }
-int boardtmp[20][20];
 void transformboard(vector<vector<int>> &board, char type){
+    static int boardtmp[20][20];
     for(int i = 0; i < board.size(); ++i)
         for(int j = 0; j < board[0].size(); ++j){
             int x, y;

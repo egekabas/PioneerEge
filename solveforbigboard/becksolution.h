@@ -12,9 +12,10 @@ typedef pair<ll, ll> pll;
 typedef pair<ull, ull> pull;
 typedef pair<int, int> pii;
 typedef pair<ld, ld> pld;
-int commonval[20][20];
 
 int becksolution(vector<vector<int>> &board, vector<vector<pii>> &shapes, int turn){
+    static int commonval[20][20];
+
     int n = board.size();
     int m = board[0].size();
     
