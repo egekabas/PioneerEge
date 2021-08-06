@@ -1,7 +1,9 @@
 #include <bits/stdc++.h>
 #include "utilities.h"
 #include "becksolution.h"
-#include "pairingsolution.h"
+#include "createpairingmodel.h"
+//#include "pairingsolution.h"
+#include "z3.h"
 #include "orderusingbeckdefense.h"
 
 #define all(x) (x).begin(), (x).end()
@@ -20,7 +22,8 @@ typedef pair<ld, ld> pld;
 map<vector<vector<int>>, int> res;
 map<vector<vector<int>>, int> calcvis;
 vector<vector<pii>> shapes;
-vector<vector<vector<int>>> sols;
+
+//vector<vector<vector<int>>> sols;
 
 //set the board size, starting depth and symmetry here
 const int n = 8, m = 8;
@@ -28,7 +31,9 @@ const int symmetric = 1;
 int maxdepth = 6;
 
 int tot = 0;
-int calc(vector<vector<int>> board, int turn, int depth){
+
+
+int calc(vector<vector<int>> board, int turn, int depth, z3::context &c, z3::solver &s, vector<vector<z3::expr>> &onemark, vector<vector<z3::expr>> &twomark){
     int &dpval = res[board];
     
     //stop if previously visited or deeper than maxdepth
@@ -58,22 +63,21 @@ int calc(vector<vector<int>> board, int turn, int depth){
     if(calcvis[board] == 0){
         ++tot;
         if(tot%100 == 0)
-            cout << maxdepth << ' ' << tot << ' ' << newsol << ' ' << oldsol << endl;
+            cout << tot << endl;
+
         calcvis[board] = 1;
         int val = becksolution(board, shapes, turn);
         if(val)
             return dpval = val;
-        for(auto &u : sols)
+        /*for(auto &u : sols)
             if(checksol(turn, board, u, shapes)){
                 ++oldsol;
                 return dpval = 2;
-            }
+            }*/
         if(turn == 2){
             vector<vector<int>> cursol;
-            val = pairingsolution(board, shapes, 2, cursol);
+            val = getsolformmodel(board, c, s, onemark, twomark);
             if(val){
-                ++newsol;
-                sols.pb(cursol);
                 return dpval = val;
             }
         }
@@ -90,12 +94,22 @@ int calc(vector<vector<int>> board, int turn, int depth){
 
     //coordinates sorted by beck value
     vector<pii> coordinates_sorted = orderusingbeck(board, shapes);
+    
     for(auto u : coordinates_sorted){
         
         int i = u.ff, j = u.ss;
         movecnt = 1;
         board[i][j] = turn;
-        int res = calc(board, nxtturn, depth+1);
+        if(res[board] == turn)
+            return dpval = turn;
+        board[i][j] = 0;
+    }
+    for(auto u : coordinates_sorted){
+        
+        int i = u.ff, j = u.ss;
+        movecnt = 1;
+        board[i][j] = turn;
+        int res = calc(board, nxtturn, depth+1, c, s, onemark, twomark);
         //if the player can force a win, no need to calculate further
         if(res == turn)
             return dpval = turn;
@@ -117,6 +131,13 @@ int main() {
     
     //freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
+    
+    //z3 variables
+    z3::context c;
+    z3::solver s(c);
+    vector<vector<z3::expr>> onemark, twomark;
+
+
 
     //change this part to create the desired set of shapes
     vector<pii> shapy = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 3}, {1, 4}};
@@ -131,10 +152,9 @@ int main() {
         shapes.pb(shapy);
         transform(shapy, rotate);
     }
-    normalize(shapes);
+    normalize(shapes);    
 
-    
-
+    createinitialmodel(n, m, c, s, shapes, onemark, twomark);
 
     int val;
     while(1){
@@ -144,7 +164,7 @@ int main() {
                 u.ss = 0;
         //increasing the maximum search depth
         maxdepth += 2;
-        val = calc(vector<vector<int>>(n, vector<int>(m)), 1, 0);
+        val = calc(vector<vector<int>>(n, vector<int>(m)), 1, 0, c, s, onemark, twomark);
         //break only after finding a definite result
         if(val != 3)
             break;
